@@ -140,8 +140,91 @@ def export_native(class_name, mesh):
 	
 	return s
 
-def export_glge(class_name, ob):
-	print "export_glge"
+def export_glge_js(class_name, mesh):
+	s = "var BlenderExport = {};\n"
+	s += "BlenderExport.%s = function() {\n" % (class_name)
+	s += "var obj=new GLGE.Object(\'%s\');\n"  % (class_name)
+	s += "var mesh=new GLGE.Mesh();\n" 
+	vertices = "mesh.setPositions(["
+	normals = "mesh.setNormals(["
+	uvs = "mesh.setUV(["
+	indices = "mesh.setFaces(["
+	indexcount = 0;
+	for f in mesh.faces:
+		vertices += "%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f," % (f.verts[0].co.x, f.verts[0].co.y, f.verts[0].co.z,f.verts[1].co.x, f.verts[1].co.y, f.verts[1].co.z,f.verts[2].co.x, f.verts[2].co.y, f.verts[2].co.z)
+		if (f.smooth):
+			normals += "%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f," % (f.verts[0].no.x, f.verts[0].no.y, f.verts[0].no.z,f.verts[1].no.x, f.verts[1].no.y, f.verts[1].no.z,f.verts[2].no.x, f.verts[2].no.y, f.verts[2].no.z)
+		else:
+			normals += "%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f," % (f.no.x, f.no.y, f.no.z,f.no.x, f.no.y, f.no.z,f.no.x, f.no.y, f.no.z)
+		if (mesh.faceUV):
+			uvs += "%.3f,%.3f,%.3f,%.3f,%.3f,%.3f," % (f.uv[0][0], f.uv[0][1], f.uv[1][0], f.uv[1][1], f.uv[2][0], f.uv[2][1])
+		indices += "%i,%i,%i," % (indexcount,indexcount+1,indexcount+2)
+		indexcount += 3
+		
+	indicies=indices[:len(indices)-1]
+	normals=normals[:len(normals)-1]
+	if (mesh.faceUV):
+		uvs=uvs[:len(uvs)-1]
+	vertices=vertices[:len(vertices)-1]
+	
+	indices += "]);\n";
+	normals += "]);\n";
+	uvs += "]);\n";
+	vertices += "]);\n";
+	
+	s += vertices
+	s += normals
+	if (mesh.faceUV):
+		s += uvs
+	s += indices
+	
+	s += "var material=new GLGE.Material();\n"
+	s += "obj.setMaterial(material);\n"
+	s += "obj.setMesh(mesh);\n"
+	s += "return obj;\n};"
+	print s
+	return s
+	
+def export_glge_xml(class_name, mesh):
+	s = "<?xml version=\"1.0\" ?>\n"
+	s += "<glge>\n"
+	s += "<mesh id=\"%s\">\n"  % (class_name)
+	vertices = "<positions>"
+	normals = "<normals>"
+	uvs = "<uv>"
+	indices = "<faces>"
+	indexcount = 0;
+	for f in mesh.faces:
+		vertices += "%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f," % (f.verts[0].co.x, f.verts[0].co.y, f.verts[0].co.z,f.verts[1].co.x, f.verts[1].co.y, f.verts[1].co.z,f.verts[2].co.x, f.verts[2].co.y, f.verts[2].co.z)
+		if (f.smooth):
+			normals += "%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f," % (f.verts[0].no.x, f.verts[0].no.y, f.verts[0].no.z,f.verts[1].no.x, f.verts[1].no.y, f.verts[1].no.z,f.verts[2].no.x, f.verts[2].no.y, f.verts[2].no.z)
+		else:
+			normals += "%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f," % (f.no.x, f.no.y, f.no.z,f.no.x, f.no.y, f.no.z,f.no.x, f.no.y, f.no.z)
+		if (mesh.faceUV):
+			uvs += "%.3f,%.3f,%.3f,%.3f,%.3f,%.3f," % (f.uv[0][0], f.uv[0][1], f.uv[1][0], f.uv[1][1], f.uv[2][0], f.uv[2][1])
+		indices += "%i,%i,%i," % (indexcount,indexcount+1,indexcount+2)
+		indexcount += 3
+	
+	indicies=indices[:len(indices)-1]
+	normals=normals[:len(normals)-1]
+	uvs=uvs[:len(uvs)-1]
+	vertices=vertices[:len(vertices)-1]
+	
+	indices += "</faces>\n";
+	normals += "</normals>;\n";
+	uvs += "</uv>\n";
+	vertices += "</positions>\n";
+	
+	s += vertices
+	s += normals
+	if (mesh.faceUV):
+		s += uvs
+	s += indices
+	
+	s += "</mesh>\n"
+	s += "</glge>"
+	
+	return s
 
 def event(evt, val):
 	if (evt == Draw.QKEY and not val):
@@ -168,8 +251,10 @@ def bevent(evt):
 		elif(engine_menu.val == 2):
 			data_string = export_scenejs(class_name, mesh)
 		elif(engine_menu.val == 3):
-			data_string = export_glge(class_name, mesh)
+			data_string = export_glge_js(class_name, mesh)
 		elif(engine_menu.val == 4):
+			data_string = export_glge_xml(class_name, mesh)
+		elif(engine_menu.val == 5):
 			data_string = export_copperlicht(class_name, mesh)
 
 		out.write(data_string)
@@ -177,7 +262,10 @@ def bevent(evt):
 		
 		Draw.PupMenu("Export Successful")
 	elif (evt== EVENT_BROWSEFILE):
-		Window.FileSelector(FileSelected,"Export .js", exp_file_name)
+		if (engine_menu.val == 4):
+			Window.FileSelector(FileSelected,"Export .xml", exp_file_name)
+		else:
+			Window.FileSelector(FileSelected,"Export .js", exp_file_name)
 		Draw.Redraw(1)
 
 def FileSelected(file_name):
@@ -198,10 +286,10 @@ def draw():
 	glClear(GL_COLOR_BUFFER_BIT)
 	glRasterPos2i(40, 240)
 
-	logoImage = Image.Load(Get('scriptsdir')+sys.sep+'AS3Export'+sys.sep+'AS3Export.png')
-	Draw.Image(logoImage, 40, 155)
+	#logoImage = Image.Load(Get('scriptsdir')+sys.sep+'AS3Export'+sys.sep+'AS3Export.png')
+	#Draw.Image(logoImage, 40, 155)
 	
-	engine_name = "Native WebGL%x1|SceneJS%x2"
+	engine_name = "Native WebGL%x1|SceneJS%x2|GLGE JS%x3|GLGE XML%x4"
 	engine_menu = Draw.Menu(engine_name, EVENT_NOEVENT, 40, 100, 200, 20, engine_menu.val, "Choose your engine")
 
 	file_button = Draw.String('File location: ', EVENT_NOEVENT, 40, 70, 250, 20, file_button.val, 255) 
