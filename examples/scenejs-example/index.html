@@ -1,0 +1,82 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>Blender to SceneJS Example</title>
+    <script type="text/javascript" src="scenejs.min.js"></script>
+    <script type="text/javascript" src="blender-cube.js"></script>
+</head>
+<body>
+	This code is a modified version of the texturing example from <a href="http://www.scenejs.com" title="SceneJS">http://www.scenejs.com</a>.
+	<canvas id="myCanvas" width="400" height="400"></canvas>
+    <script type="text/javascript">
+    with (SceneJs) {
+        var exampleScene = scene({},
+
+                renderer({
+                    canvasId: 'myCanvas',
+                    clear : { depth : true, color : true},
+                    viewport:{ x : 1, y : 1, width: 400, height: 400}  
+                },
+                        shader({
+                            type: 'texture-shader'
+                        },
+                                lights({
+                                    lights: [
+                                        {
+                                            pos: { x: -30.0, y: -1000.0, z: 300.0 }
+                                        }
+                                    ]},
+                                        perspective({ fovy : 25.0, aspect : 1.0, near : 0.10, far : 300.0
+                                        },
+                                                lookAt({
+                                                    eye : { x: 0.0, y: 0.0, z: -10},
+                                                    look : { x : 0.0, y : 0.0, z : 0 },
+                                                    up : { x: 0.0, y: 1.0, z: 0.0 }
+
+                                                },
+
+
+                                                        material({
+                                                            ambient:  { r:0.3, g:0.3, b:0.3 },
+                                                            diffuse:  { r:1.0, g:1.0, b:1.0 }
+                                                        },
+                                                                texture({
+                                                                    uri:"cube-texture.jpg",
+                                                                    wait: false
+                                                                },
+                                                                        rotate(function(scope) {
+                                                                            return { angle: scope.get("angle"), x : 1.0, y : 1.0}
+                                                                        },
+                                                                        		BlenderExport.Cube()
+                                                                                )
+                                                                        )
+                                                                )
+                                                        )
+                                            // ) // lookAt
+                                                ) // perspective
+                                        ) // lights
+                                ) // shader
+                        ) // renderer
+                ); // scene
+
+
+        var angle = 0.0;
+        var pInterval;
+
+        window.nextFrame = function() {
+            angle += 0.4;
+
+            try {
+                exampleScene.render({angle:angle});
+            } catch (e) {
+                clearInterval(pInterval);
+                throw e;
+            }
+        };
+        exampleScene.render({angle:angle});
+        pInterval = setInterval("window.nextFrame()", 10);
+    }
+    </script>
+</body>
+</html>
