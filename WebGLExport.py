@@ -53,7 +53,7 @@ EVENT_BROWSEFILE = 5
 
 file_button = Draw.Create("")
 engine_menu = Draw.Create(1)
-export_all = None
+exp_all = Draw.Create(0)
 exp_normals = Draw.Create("")
 animation_button = Draw.Create(0)
 animation_start = Draw.Create(0)
@@ -70,7 +70,7 @@ def export_scenejs(class_name, mesh):
 	indexcount = 0;
 	print len(mesh.faces)
 	for f in mesh.faces:
-		vertices += "[%.2f,%.2f,%.2f],[%.2f,%.2f,%.2f],[%.2f,%.2f,%.2f]," % (f.verts[0].co.x, f.verts[0].co.y, f.verts[0].co.z,f.verts[1].co.x, f.verts[1].co.y, f.verts[1].co.z,f.verts[2].co.x, f.verts[2].co.y, f.verts[2].co.z)
+		vertices += "[%.6f,%.6f,%.6f],[%.6f,%.6f,%.6f],[%.6f,%.6f,%.6f]," % (f.verts[0].co.x, f.verts[0].co.y, f.verts[0].co.z,f.verts[1].co.x, f.verts[1].co.y, f.verts[1].co.z,f.verts[2].co.x, f.verts[2].co.y, f.verts[2].co.z)
 		indices += "[%i,%i,%i]," % (indexcount,indexcount+1,indexcount+2)
 		indexcount += 3
 	
@@ -83,19 +83,19 @@ def export_scenejs(class_name, mesh):
 	if(exp_normals == 1):
 		s += "normals : ["
 		for v in mesh.verts: 
-			s += "[%.2f, %.2f, %.2f]," % (v.no.x, v.no.y, v.no.z)
+			s += "[%.6f, %.6f, %.6f]," % (v.no.x, v.no.y, v.no.z)
 	
 		s += "],\n"
 	if (mesh.vertexColors):
 		s += "colors : ["
 		for face in mesh.faces:
 			for (vert, color) in zip(face.verts, face.col):
-				s += "[%.2f,%.2f,%.2f,%.2f]," % ( color.r / 255.0, color.g / 255.0, color.b / 255.0, color.a / 255.0)
+				s += "[%.6f,%.6f,%.6f,%.6f]," % ( color.r / 255.0, color.g / 255.0, color.b / 255.0, color.a / 255.0)
 		s += "]\n"
 	if (mesh.faceUV):
 		s += "texCoords : ["
 		for face in mesh.faces:
-			s += "[%.2f,%.2f],[%.2f,%.2f],[%.2f,%.2f]," % (face.uv[0][0], face.uv[0][1], face.uv[1][0], face.uv[1][1], face.uv[2][0], face.uv[2][1])
+			s += "[%.6f,%.6f],[%.6f,%.6f],[%.6f,%.6f]," % (face.uv[0][0], face.uv[0][1], face.uv[1][0], face.uv[1][1], face.uv[2][0], face.uv[2][1])
 				
 		s += "]\n"
 	
@@ -103,7 +103,7 @@ def export_scenejs(class_name, mesh):
 	
 	return s
 
-def export_native(class_name, mesh):
+def export_native(class_name, mesh, ob):
 	s = "var BlenderExport = {};\n"
 	s += "BlenderExport.%s = {};\n" % (class_name)
 	
@@ -112,8 +112,7 @@ def export_native(class_name, mesh):
 	indexcount = 0;
 	
 	for f in mesh.faces:
-		vertices += "%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f," % (f.verts[0].co.x, f.verts[0].co.y, f.verts[0].co.z,f.verts[1].co.x, f.verts[1].co.y, f.verts[1].co.z,f.verts[2].co.x, f.verts[2].co.y, f.verts[2].co.z)
-		#indices += "%i,%i,%i," % (indexcount,indexcount+1,indexcount+2)
+		vertices += "%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f," % (f.verts[0].co.x, f.verts[0].co.y, f.verts[0].co.z,f.verts[1].co.x, f.verts[1].co.y, f.verts[1].co.z,f.verts[2].co.x, f.verts[2].co.y, f.verts[2].co.z)
 		indexcount += 3
 	
 	indices += "];\n";
@@ -122,42 +121,39 @@ def export_native(class_name, mesh):
 	s += vertices
 	s += indices
 	
-	indexcount -= 3
 	s += "for(var i=0;i<%s;i++) BlenderExport.%s.indices.push(i);\n" % (indexcount, class_name)
 	
 	if(exp_normals == 1):
 		s += "BlenderExport.%s.normals = [" % (class_name)
 		for v in mesh.verts: 
-			s += "%.2f, %.2f, %.2f," % (v.no.x, v.no.y, v.no.z)
+			s += "%.6f, %.6f, %.6f," % (v.no.x, v.no.y, v.no.z)
 	
 		s += "];\n"
 	if (mesh.vertexColors):
 		s += "BlenderExport.%s.colors = [" % (class_name)
 		for face in mesh.faces:
 			for (vert, color) in zip(face.verts, face.col):
-				s += "%.2f,%.2f,%.2f,%.2f," % ( color.r / 255.0, color.g / 255.0, color.b / 255.0, color.a / 255.0)
+				s += "%.6f,%.6f,%.6f,%.6f," % ( color.r / 255.0, color.g / 255.0, color.b / 255.0, color.a / 255.0)
 		s += "];\n"
 	if (mesh.faceUV):
 		s += "BlenderExport.%s.texCoords = [" % (class_name)
 		for face in mesh.faces:
-			s += "%.2f,%.2f,%.2f,%.2f,%.2f,%.2f," % (face.uv[0][0], face.uv[0][1], face.uv[1][0], face.uv[1][1], face.uv[2][0], face.uv[2][1])
+			s += "%.6f,%.6f,%.6f,%.6f,%.6f,%.6f," % (face.uv[0][0], face.uv[0][1], face.uv[1][0], face.uv[1][1], face.uv[2][0], face.uv[2][1])
 		s += "];\n"
 
 	if animation_button.val:
 		s += "BlenderExport.%s.frames = [" % (class_name)
-		sce = bpy.data.scenes.active
-		activeObj = sce.objects.active
-		matrix = activeObj.getMatrix('worldspace')
+		matrix = ob.getMatrix('worldspace')
 
 		for frame in xrange(animation_start.val, animation_end.val):
 			Blender.Set('curframe', frame)
 			tmpMesh = Mesh.New()
-			tmpMesh.getFromObject(activeObj.name)
+			tmpMesh.getFromObject(ob.name)
 			tmpMesh.transform(matrix)
 			s+= "["
 			for f in tmpMesh.faces:
 				for v in f.verts:
-					s += "%.2f,%.2f,%.2f," % (v.co.x, v.co.y, v.co.z)
+					s += "%.6f,%.6f,%.6f," % (v.co.x, v.co.y, v.co.z)
 			
 			s += "],"
 		s += "];"
@@ -175,13 +171,13 @@ def export_glge_js(class_name, mesh):
 	indices = "mesh.setFaces(["
 	indexcount = 0;
 	for f in mesh.faces:
-		vertices += "%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f," % (f.verts[0].co.x, f.verts[0].co.y, f.verts[0].co.z,f.verts[1].co.x, f.verts[1].co.y, f.verts[1].co.z,f.verts[2].co.x, f.verts[2].co.y, f.verts[2].co.z)
+		vertices += "%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f," % (f.verts[0].co.x, f.verts[0].co.y, f.verts[0].co.z,f.verts[1].co.x, f.verts[1].co.y, f.verts[1].co.z,f.verts[2].co.x, f.verts[2].co.y, f.verts[2].co.z)
 		if (f.smooth):
-			normals += "%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f," % (f.verts[0].no.x, f.verts[0].no.y, f.verts[0].no.z,f.verts[1].no.x, f.verts[1].no.y, f.verts[1].no.z,f.verts[2].no.x, f.verts[2].no.y, f.verts[2].no.z)
+			normals += "%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f," % (f.verts[0].no.x, f.verts[0].no.y, f.verts[0].no.z,f.verts[1].no.x, f.verts[1].no.y, f.verts[1].no.z,f.verts[2].no.x, f.verts[2].no.y, f.verts[2].no.z)
 		else:
-			normals += "%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f," % (f.no.x, f.no.y, f.no.z,f.no.x, f.no.y, f.no.z,f.no.x, f.no.y, f.no.z)
+			normals += "%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f," % (f.no.x, f.no.y, f.no.z,f.no.x, f.no.y, f.no.z,f.no.x, f.no.y, f.no.z)
 		if (mesh.faceUV):
-			uvs += "%.2f,%.2f,%.2f,%.2f,%.2f,%.2f," % (f.uv[0][0], f.uv[0][1], f.uv[1][0], f.uv[1][1], f.uv[2][0], f.uv[2][1])
+			uvs += "%.6f,%.6f,%.6f,%.6f,%.6f,%.6f," % (f.uv[0][0], f.uv[0][1], f.uv[1][0], f.uv[1][1], f.uv[2][0], f.uv[2][1])
 		indices += "%i,%i,%i," % (indexcount,indexcount+1,indexcount+2)
 		indexcount += 3
 		
@@ -219,13 +215,13 @@ def export_glge_xml(class_name, mesh):
 	indices = "<faces>"
 	indexcount = 0;
 	for f in mesh.faces:
-		vertices += "%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f," % (f.verts[0].co.x, f.verts[0].co.y, f.verts[0].co.z,f.verts[1].co.x, f.verts[1].co.y, f.verts[1].co.z,f.verts[2].co.x, f.verts[2].co.y, f.verts[2].co.z)
+		vertices += "%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f," % (f.verts[0].co.x, f.verts[0].co.y, f.verts[0].co.z,f.verts[1].co.x, f.verts[1].co.y, f.verts[1].co.z,f.verts[2].co.x, f.verts[2].co.y, f.verts[2].co.z)
 		if (f.smooth):
-			normals += "%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f," % (f.verts[0].no.x, f.verts[0].no.y, f.verts[0].no.z,f.verts[1].no.x, f.verts[1].no.y, f.verts[1].no.z,f.verts[2].no.x, f.verts[2].no.y, f.verts[2].no.z)
+			normals += "%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f," % (f.verts[0].no.x, f.verts[0].no.y, f.verts[0].no.z,f.verts[1].no.x, f.verts[1].no.y, f.verts[1].no.z,f.verts[2].no.x, f.verts[2].no.y, f.verts[2].no.z)
 		else:
-			normals += "%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f," % (f.no.x, f.no.y, f.no.z,f.no.x, f.no.y, f.no.z,f.no.x, f.no.y, f.no.z)
+			normals += "%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f," % (f.no.x, f.no.y, f.no.z,f.no.x, f.no.y, f.no.z,f.no.x, f.no.y, f.no.z)
 		if (mesh.faceUV):
-			uvs += "%.2f,%.2f,%.2f,%.2f,%.2f,%.2f," % (f.uv[0][0], f.uv[0][1], f.uv[1][0], f.uv[1][1], f.uv[2][0], f.uv[2][1])
+			uvs += "%.6f,%.6f,%.6f,%.6f,%.6f,%.6f," % (f.uv[0][0], f.uv[0][1], f.uv[1][0], f.uv[1][1], f.uv[2][0], f.uv[2][1])
 		indices += "%i,%i,%i," % (indexcount,indexcount+1,indexcount+2)
 		indexcount += 3
 	
@@ -262,27 +258,46 @@ def bevent(evt):
 	elif (evt== EVENT_DRAW):
 		Draw.Redraw()
 	elif (evt== EVENT_EXPORT):
-		out = file(file_button.val, 'w')
 		sce = bpy.data.scenes.active
-		ob = sce.objects.active
-		mesh = Mesh.New()        
-		mesh.getFromObject(ob.name)
-		class_name = ob.name.replace(".", "")
-		data_string = ""
+		
+		obs = None
+		
+		if(exp_all == 1):
+			# export all scene objects
+			obs = [ob for ob in sce.objects if ob.type == 'Mesh']
+		else:
+			# export the selected objects
+			obs = [ob for ob in sce.objects.selected if ob.type == 'Mesh']
+		
+		if (len(obs) == 0):
+			Draw.PupMenu("Nothing to export. Please select a Mesh.")
+			Draw.Exit()
+			return
+		
+		# export all object names
+		for ob in obs:
+			me = Mesh.New()
+			me.getFromObject(ob,0)
+			class_name = ob.name.replace(".", "")
+			ext = ""
+			if(engine_menu.val ==4): ext = ".xml"
+			else: ext = ".js"
+			out = open(file_button.val+""+class_name+ext, 'w')#file(file_button.val, 'w')
+			data_string = ""
 
-		if (engine_menu.val == 1):
-			data_string = export_native(class_name, mesh)
-		elif(engine_menu.val == 2):
-			data_string = export_scenejs(class_name, mesh)
-		elif(engine_menu.val == 3):
-			data_string = export_glge_js(class_name, mesh)
-		elif(engine_menu.val == 4):
-			data_string = export_glge_xml(class_name, mesh)
-		elif(engine_menu.val == 5):
-			data_string = export_copperlicht(class_name, mesh)
+			if (engine_menu.val == 1):
+				data_string = export_native(class_name, me, ob)
+			elif(engine_menu.val == 2):
+				data_string = export_scenejs(class_name, me)
+			elif(engine_menu.val == 3):
+				data_string = export_glge_js(class_name, me)
+			elif(engine_menu.val == 4):
+				data_string = export_glge_xml(class_name, me)
+			elif(engine_menu.val == 5):
+				data_string = export_copperlicht(class_name, me)
 
-		out.write(data_string)
-		out.close()
+			out.write(data_string)
+			out.close()
 		
 		Draw.PupMenu("Export Successful")
 	elif (evt== EVENT_BROWSEFILE):
@@ -302,7 +317,7 @@ def FileSelected(file_name):
 
 def draw():
 	global file_button, exp_file_name, animation_button, animation_start, animation_end
-	global engine_menu, engine_name, exp_normals
+	global engine_menu, engine_name, exp_normals, exp_all
 	global EVENT_NOEVENT, EVENT_DRAW, EVENT_EXIT, EVENT_EXPORT
 	exp_file_name = ""
 
@@ -324,6 +339,8 @@ def draw():
 	animation_button = Draw.Toggle('Export animation frames (native WebGL only)', EVENT_NOEVENT, 400, 70, 300, 20, animation_button.val, 'Export keyframe animation')
 	animation_start = Draw.Number('Start frame', EVENT_NOEVENT, 400, 45, 160, 20, animation_start.val, 1, 9999)
 	animation_end = Draw.Number('End frame', EVENT_NOEVENT, 400, 20, 160, 20, animation_end.val, 2, 9999)
+	
+	exp_all = Draw.Toggle('Export ALL scene objects', EVENT_NOEVENT, 40, 45, 200, 20, exp_all.val)
 	
 	Draw.Button("Export",EVENT_EXPORT , 40, 20, 80, 18)
 	Draw.Button("Exit",EVENT_EXIT , 140, 20, 80, 18)
