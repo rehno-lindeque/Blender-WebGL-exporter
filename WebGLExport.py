@@ -54,7 +54,7 @@ EVENT_BROWSEFILE = 5
 file_button = Draw.Create("")
 engine_menu = Draw.Create(1)
 exp_all = Draw.Create(0)
-exp_normals = Draw.Create("")
+exp_normals = Draw.Create(0)
 animation_button = Draw.Create(0)
 animation_start = Draw.Create(0)
 animation_end = Draw.Create(0)
@@ -62,7 +62,7 @@ animation_end = Draw.Create(0)
 def export_scenejs(class_name, mesh):
 	s = "var BlenderExport = {};\n"
 	s += "BlenderExport.%s = function() {\n" % (class_name)
-	s += "return SceneJs.geometry({\n"
+	s += "return SceneJS.geometry({\n"
 	s += "type: \'%s\',\n" % (class_name)
 	
 	vertices = "vertices : ["
@@ -329,7 +329,7 @@ def draw():
 
 	file_button = Draw.String('File location: ', EVENT_NOEVENT, 40, 70, 250, 20, file_button.val, 255) 
 	Draw.PushButton('...', EVENT_BROWSEFILE, 300, 70, 30, 20, 'browse file')
-	exp_normals = Draw.Toggle('Export normals', EVENT_NOEVENT, 40, 45, 200, 20, 0)
+	exp_normals = Draw.Toggle('Export normals', EVENT_NOEVENT, 250, 45, 100, 20, exp_normals.val)
 	
 	anim_down = 0
 	
