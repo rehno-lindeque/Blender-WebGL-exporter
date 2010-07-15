@@ -211,28 +211,42 @@ def export_glge_xml(class_name, mesh):
 	s += "<mesh id=\"%s\">\n"  % (class_name)
 	vertices = "<positions>"
 	normals = "<normals>"
-	uvs = "<uv>"
+	uvs = "<uv1>"
 	indices = "<faces>"
 	indexcount = 0;
+	
 	for f in mesh.faces:
 		vertices += "%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f," % (f.verts[0].co.x, f.verts[0].co.y, f.verts[0].co.z,f.verts[1].co.x, f.verts[1].co.y, f.verts[1].co.z,f.verts[2].co.x, f.verts[2].co.y, f.verts[2].co.z)
 		if (f.smooth):
 			normals += "%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f," % (f.verts[0].no.x, f.verts[0].no.y, f.verts[0].no.z,f.verts[1].no.x, f.verts[1].no.y, f.verts[1].no.z,f.verts[2].no.x, f.verts[2].no.y, f.verts[2].no.z)
 		else:
 			normals += "%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f," % (f.no.x, f.no.y, f.no.z,f.no.x, f.no.y, f.no.z,f.no.x, f.no.y, f.no.z)
-		if (mesh.faceUV):
-			uvs += "%.6f,%.6f,%.6f,%.6f,%.6f,%.6f," % (f.uv[0][0], f.uv[0][1], f.uv[1][0], f.uv[1][1], f.uv[2][0], f.uv[2][1])
+		#if (mesh.faceUV):
+			#uvs += "%.6f,%.6f,%.6f,%.6f,%.6f,%.6f," % (f.uv[0][0], f.uv[0][1], f.uv[1][0], f.uv[1][1], f.uv[2][0], f.uv[2][1])
 		indices += "%i,%i,%i," % (indexcount,indexcount+1,indexcount+2)
 		indexcount += 3
 	
-	indicies=indices[:len(indices)-1]
+	if len(mesh.getUVLayerNames()):
+		uvs = ""
+		uvlcount = 0
+		for uvlayer in mesh.getUVLayerNames():
+			uvlcount = uvlcount + 1
+			print "uvlayer " + uvlayer
+			mesh.activeUVLayer = uvlayer
+			uvs += "<uv" + str(uvlcount) + ">"
+			
+			for f in mesh.faces:
+				uvs += "%.6f,%.6f,%.6f,%.6f,%.6f,%.6f," % (f.uv[0][0], f.uv[0][1], f.uv[1][0], f.uv[1][1], f.uv[2][0], f.uv[2][1])	
+				
+			uvs=uvs[:len(uvs)-1]
+			uvs += "</uv" + str(uvlcount) + ">\n"	
+		
+	indices=indices[:len(indices)-1]
 	normals=normals[:len(normals)-1]
-	uvs=uvs[:len(uvs)-1]
 	vertices=vertices[:len(vertices)-1]
 	
 	indices += "</faces>\n";
-	normals += "</normals>;\n";
-	uvs += "</uv>\n";
+	normals += "</normals>\n";
 	vertices += "</positions>\n";
 	
 	s += vertices
