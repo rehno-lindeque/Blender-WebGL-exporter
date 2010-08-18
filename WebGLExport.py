@@ -112,8 +112,9 @@ def export_native(class_name, mesh, ob):
 	indexcount = 0;
 	
 	for f in mesh.faces:
-		vertices += "%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f," % (f.verts[0].co.x, f.verts[0].co.y, f.verts[0].co.z,f.verts[1].co.x, f.verts[1].co.y, f.verts[1].co.z,f.verts[2].co.x, f.verts[2].co.y, f.verts[2].co.z)
-		indexcount += 3
+		for v in f.verts: 
+			vertices += "%.6f,%.6f,%.6f," % (v.co.x, v.co.y, v.co.z)
+			indexcount += 1
 	
 	indices += "];\n";
 	vertices += "];\n";
@@ -125,8 +126,9 @@ def export_native(class_name, mesh, ob):
 	
 	if(exp_normals == 1):
 		s += "BlenderExport.%s.normals = [" % (class_name)
-		for v in mesh.verts: 
-			s += "%.6f, %.6f, %.6f," % (v.no.x, v.no.y, v.no.z)
+		for f in mesh.faces: 
+			for v in f.verts: 
+				s += "%.6f, %.6f, %.6f," % (v.no.x, v.no.y, v.no.z)
 	
 		s += "];\n"
 	if (mesh.vertexColors):
