@@ -1,0 +1,10 @@
+Blender WebGL exporter
+----------------------
+
+This is a fork of the blender webgl exporter. It can export to native WebGL, GLGE and SceneJS. It is licensed under the GNU General Public License v3.
+
+To install the script copy the "WebGLExport.py" file to one of these directories:
+* Windows: /Blender Foundation/Blender/.blender/scripts/ 
+* Windows (Blender .2.46): C:\Documents and Settings\USERNAME\Application Data\Blender Foundation\Blender\.blender\scripts\
+* Mac: /Applications/blender/blender.app/Contents/MacOS/.blender/scripts/
+* Linux: ~/.blender/scripts/
