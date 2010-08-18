@@ -64,14 +64,15 @@ def export_scenejs(class_name, mesh):
 	s += "BlenderExport.%s = function() {\n" % (class_name)
 	s += "return SceneJS.geometry({\n"
 	s += "type: \"%s\",\n" % (class_name)
+	s += "primitive: \"triangles\",\n"
 	
-	vertices = "vertices : ["
-	indices = "indices : ["
+	vertices = "positions: ["
+	indices = "indices: ["
 	indexcount = 0;
 	print len(mesh.faces)
 	for f in mesh.faces:
-		vertices += "[%.6f,%.6f,%.6f],[%.6f,%.6f,%.6f],[%.6f,%.6f,%.6f]," % (f.verts[0].co.x, f.verts[0].co.y, f.verts[0].co.z,f.verts[1].co.x, f.verts[1].co.y, f.verts[1].co.z,f.verts[2].co.x, f.verts[2].co.y, f.verts[2].co.z)
-		indices += "[%i,%i,%i]," % (indexcount,indexcount+1,indexcount+2)
+		vertices += "%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f," % (f.verts[0].co.x, f.verts[0].co.y, f.verts[0].co.z,f.verts[1].co.x, f.verts[1].co.y, f.verts[1].co.z,f.verts[2].co.x, f.verts[2].co.y, f.verts[2].co.z)
+		indices += "%i,%i,%i," % (indexcount,indexcount+1,indexcount+2)
 		indexcount += 3
 	
 	indices += "],\n";
@@ -83,21 +84,20 @@ def export_scenejs(class_name, mesh):
 	if(exp_normals == 1):
 		s += "normals : ["
 		for v in mesh.verts: 
-			s += "[%.6f, %.6f, %.6f]," % (v.no.x, v.no.y, v.no.z)
+			s += "%.6f, %.6f, %.6f," % (v.no.x, v.no.y, v.no.z)
 	
 		s += "],\n"
 	if (mesh.vertexColors):
-		s += "colors : ["
+		s += "colors: ["
 		for face in mesh.faces:
 			for (vert, color) in zip(face.verts, face.col):
-				s += "[%.6f,%.6f,%.6f,%.6f]," % ( color.r / 255.0, color.g / 255.0, color.b / 255.0, color.a / 255.0)
-		s += "]\n"
+				s += "%.6f,%.6f,%.6f,%.6f," % ( color.r / 255.0, color.g / 255.0, color.b / 255.0, color.a / 255.0)
+		s += "],\n"
 	if (mesh.faceUV):
-		s += "texCoords : ["
+		s += "uv: ["
 		for face in mesh.faces:
-			s += "[%.6f,%.6f],[%.6f,%.6f],[%.6f,%.6f]," % (face.uv[0][0], face.uv[0][1], face.uv[1][0], face.uv[1][1], face.uv[2][0], face.uv[2][1])
-				
-		s += "]\n"
+			s += "%.6f,%.6f,%.6f,%.6f,%.6f,%.6f," % (face.uv[0][0], face.uv[0][1], face.uv[1][0], face.uv[1][1], face.uv[2][0], face.uv[2][1])
+		s += "],\n"
 	
 	s += "});\n};"
 	
