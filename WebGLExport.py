@@ -63,7 +63,7 @@ def export_scenejs(class_name, mesh):
 	s = "var BlenderExport = {};\n"
 	s += "BlenderExport.%s = function() {\n" % (class_name)
 	s += "return SceneJS.geometry({\n"
-	s += "type: \'%s\',\n" % (class_name)
+	s += "type: \"%s\",\n" % (class_name)
 	
 	vertices = "vertices : ["
 	indices = "indices : ["
