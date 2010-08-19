@@ -31,7 +31,7 @@ Tooltip: 'WebGL JavaScript'
 
 __author__ = "Dennis Ippel"
 __url__ = ("http://www.rozengain.com")
-__version__ = "0.2.2"
+__version__ = "0.2.1"
 
 __bpydoc__ = """
 
