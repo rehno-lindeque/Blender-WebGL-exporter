@@ -2,7 +2,7 @@
 
 """
 Name: 'WebGL JavaScript (.js)'
-Blender: 244
+Blender: 253
 Group: 'Export'
 Tooltip: 'WebGL JavaScript'
 """ 
@@ -31,7 +31,7 @@ Tooltip: 'WebGL JavaScript'
 
 __author__ = "Dennis Ippel"
 __url__ = ("http://www.rozengain.com")
-__version__ = "0.2.1"
+__version__ = "0.2.2"
 
 __bpydoc__ = """
 
