@@ -29,7 +29,7 @@ Tooltip: 'WebGL JavaScript'
 # ***** END GPL LICENCE BLOCK *****
 # --------------------------------------------------------------------------
 
-__author__ = "Dennis Ippel"
+__author__ = "Dennis Ippel, Rehno Lindeque"
 __url__ = ("http://www.rozengain.com")
 __version__ = "0.2.1"
 
@@ -68,13 +68,17 @@ def export_scenejs(class_name, mesh):
 	
 	vertices = "positions: ["
 	indices = "indices: ["
-	indexcount = 0;
+	indexoffset = 0;
 	print len(mesh.faces)
 	for f in mesh.faces:
-		vertices += "%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f," % (f.verts[0].co.x, f.verts[0].co.y, f.verts[0].co.z,f.verts[1].co.x, f.verts[1].co.y, f.verts[1].co.z,f.verts[2].co.x, f.verts[2].co.y, f.verts[2].co.z)
-		indices += "%i,%i,%i," % (indexcount,indexcount+1,indexcount+2)
-		indexcount += 3
-	
+		if (len(f.verts) >= 3):
+			for v in f.verts: 
+				vertices += "%.6f,%.6f,%.6f," % (v.co.x, v.co.y, v.co.z)
+			indices += "%i,%i,%i," % (indexoffset,indexoffset+1,indexoffset+2)
+			if (len(f.verts) == 4):
+				indices += "%i,%i,%i," % (indexoffset+2,indexoffset+3,indexoffset+0)
+				indexoffset += 1
+			indexoffset += 3
 	indices += "],\n";
 	vertices += "],\n";
 
@@ -83,20 +87,24 @@ def export_scenejs(class_name, mesh):
 	
 	if(exp_normals == 1):
 		s += "normals : ["
-		for v in mesh.verts: 
-			s += "%.6f, %.6f, %.6f," % (v.no.x, v.no.y, v.no.z)
-	
+		for f in mesh.faces:
+			if (len(f.verts) >= 3):
+				for v in f.verts: 
+					s += "%.6f, %.6f, %.6f," % (v.no.x, v.no.y, v.no.z)
 		s += "],\n"
 	if (mesh.vertexColors):
 		s += "colors: ["
-		for face in mesh.faces:
-			for (vert, color) in zip(face.verts, face.col):
-				s += "%.6f,%.6f,%.6f,%.6f," % ( color.r / 255.0, color.g / 255.0, color.b / 255.0, color.a / 255.0)
+		for f in mesh.faces:
+			if (len(f.verts) >= 3):
+				for (vert, color) in zip(f.verts, f.col):
+					s += "%.6f,%.6f,%.6f,%.6f," % ( color.r / 255.0, color.g / 255.0, color.b / 255.0, color.a / 255.0)
 		s += "],\n"
 	if (mesh.faceUV):
 		s += "uv: ["
-		for face in mesh.faces:
-			s += "%.6f,%.6f,%.6f,%.6f,%.6f,%.6f," % (face.uv[0][0], face.uv[0][1], face.uv[1][0], face.uv[1][1], face.uv[2][0], face.uv[2][1])
+		for f in mesh.faces:
+			if (len(f.verts) >= 3):
+				for (vert, uv) in zip(f.verts, f.uv):
+					s += "%.6f,%.6f," % (uv[0], uv[1])
 		s += "],\n"
 	
 	s += "});\n};"
