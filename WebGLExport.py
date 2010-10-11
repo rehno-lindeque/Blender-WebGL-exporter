@@ -61,9 +61,9 @@ animation_end = Draw.Create(0)
 
 def export_scenejs(class_name, mesh):
 	s = "var BlenderExport = {};\n"
-	s += "BlenderExport.%s = function() {\n" % (class_name)
-	s += "return SceneJS.geometry({\n"
-	s += "type: \"%s\",\n" % (class_name)
+	s += "BlenderExport.%s = {\n" % (class_name)
+	s += "type: \"geometry\",\n"
+	s += "resource: \"%s\",\n" % (class_name)
 	s += "primitive: \"triangles\",\n"
 	
 	vertices = "positions: ["
@@ -107,7 +107,7 @@ def export_scenejs(class_name, mesh):
 					s += "%.6f,%.6f," % (uv[0], uv[1])
 		s += "],\n"
 	
-	s += "});\n};"
+	s += "};"
 	
 	return s
 
