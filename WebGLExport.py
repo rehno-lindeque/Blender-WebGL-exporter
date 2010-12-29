@@ -64,6 +64,7 @@ def export_scenejs(class_name, mesh):
 	s += "BlenderExport.%s = {\n" % (class_name)
 	s += "type: \"geometry\",\n"
 	s += "resource: \"%s\",\n" % (class_name)
+	s += "id: \"%s\",\n" % (class_name)
 	s += "primitive: \"triangles\",\n"
 	
 	vertices = "positions: ["
